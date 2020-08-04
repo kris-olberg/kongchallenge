@@ -1,15 +1,7 @@
 -- If you're not sure your plugin is executing, uncomment the line below and restart Kong
 -- then it will throw an error which indicates the plugin is being loaded at least.
 
---assert(ngx.get_phase() == "timer", "The world is coming to an end!")
-
----------------------------------------------------------------------------------------------
--- In the code below, just remove the opening brackets; `[[` to enable a specific handler
---
--- The handlers are based on the OpenResty handlers, see the OpenResty docs for details
--- on when exactly they are invoked and what limitations each handler has.
----------------------------------------------------------------------------------------------
-
+assert(ngx.get_phase() == "timer", "The world is coming to an end!")
 
 
 local plugin = {
@@ -17,13 +9,8 @@ local plugin = {
   VERSION = "0.1",
 }
 
+
 local kong = kong
-
--- do initialization here, any module level code runs in the 'init_by_lua_block',
--- before worker processes are forked. So anything you add here will run once,
--- but be available in all workers.
-
-
 
 ---[[ handles more initialization, but AFTER the worker process has been forked/created.
 -- It runs in the 'init_worker_by_lua_block'
@@ -35,53 +22,44 @@ function plugin:init_worker()
 end --]]
 
 
-
---[[ runs in the ssl_certificate_by_lua_block handler
-function plugin:certificate(plugin_conf)
-
-  -- your custom code here
-  kong.log.debug("saying hi from the 'certificate' handler")
-
-end --]]
-
-
-
---[[ runs in the 'rewrite_by_lua_block'
--- IMPORTANT: during the `rewrite` phase neither `route`, `service`, nor `consumer`
--- will have been identified, hence this handler will only be executed if the plugin is
--- configured as a global plugin!
-function plugin:rewrite(plugin_conf)
-
-  -- your custom code here
-  kong.log.debug("saying hi from the 'rewrite' handler")
-
-end --]]
-
-
-
 ---[[ runs in the 'access_by_lua_block'
+-- the code for the function below was copied from work done by Paula Murillo at
+-- https://github.com/murillopaula/kong-upstream-by-header.git. I've
+-- added comments that describe the algorithm.
 function plugin:access(plugin_conf)
   plugin.super.access(self)
 
+  ---[[ get the headers and values; e.g, X-Country=Italy]]
   local req_headers = kong.request.get_headers()
 
+  ---[[ accesset local variables]]
   local match, upstream
   local match_before, match_now = -1
 
+  ---[[ for each rule in config assume the request and rule headers match ]]
   for _, rule in ipairs(plugin_conf.rules) do
     match = true
     match_now = 0
 
+    ---[[ verify whether they match by comparing each header value in the request
+    -- with each header value in the CURRENT rule ]]
     for rule_header_name, rule_header_value in pairs(rule.headers) do
       if req_headers[rule_header_name] ~= rule_header_value then
+        ---[[ if no match set local variable "match" to false and start again with the next header in the rule ]]
         match = false
         break
       end
 
+      ---[[ increment local variable to count the number of request/rule header matches ]]
       match_now = match_now + 1
     end
 
+    ---[[ if match has not been set to false, set the upstream value ]]
     if match then
+      ---[[ set upstream to upstream if the number of matches is less than or equal to match_before.
+      -- If no, set upstream to the upstream_name in the CURRENT rule. This has the effect of
+      -- selecting the upstream_name from the rule with the greatest number of header request/rule
+      -- matches ]]
       upstream = match_now <= match_before and upstream or rule.upstream_name
       match_before = match_now
     end
@@ -89,6 +67,9 @@ function plugin:access(plugin_conf)
 
   kong.log.inspect(upstream)
 
+  ---[[ upstream began life as a nil, so if no matches were made, upstream evaluates to false
+  -- and no X-Upstream-Name header will be set on the request. If a match were made, 
+  -- upstream will be true and the X-Upstream-Name header will be set to the value of upstream. ]]
   if upstream then
     kong.service.set_upstream(upstream)
     kong.response.set_header("X-Upstream-Name", upstream)
@@ -101,24 +82,6 @@ function plugin:header_filter(plugin_conf)
 
   -- your custom code here, for example;
   ngx.header[plugin_conf.response_header] = "this is on the response"
-
-end --]]
-
-
---[[ runs in the 'body_filter_by_lua_block'
-function plugin:body_filter(plugin_conf)
-
-  -- your custom code here
-  kong.log.debug("saying hi from the 'body_filter' handler")
-
-end --]]
-
-
---[[ runs in the 'log_by_lua_block'
-function plugin:log(plugin_conf)
-
-  -- your custom code here
-  kong.log.debug("saying hi from the 'log' handler")
 
 end --]]
 
