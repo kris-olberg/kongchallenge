@@ -1,3 +1,5 @@
+local kong = kong
+
 
 local plugin = {
   PRIORITY = 1000,
