@@ -209,7 +209,7 @@ for _, strategy in helpers.each_strategy() do
         assert.equal("europe_cluster", header_value)
       end)
 
-      it("checks if request with {X-Country = Italy, X-Regione = Abruzzo} matches rule with {X-Country = Italy, X-Regione = Abruzzo}", function()
+      it("chk if {X-Country = Italy, X-Regione = Abruzzo} matches {X-Country = Italy, X-Regione = Abruzzo}", function()
         local r = assert(client:send {
           method = "GET",
           path = "/local",
@@ -226,7 +226,7 @@ for _, strategy in helpers.each_strategy() do
         assert.equal("italy_cluster", header_value)
       end)
 
-      it("checks if request with {X-Country = Italy, X-Regione = Rome} matches rule with {X-Country = Italy, X-Regione = Rome}", function()
+      it("chk if {X-Country = Italy, X-Regione = Rome} matches {X-Country = Italy, X-Regione = Rome}", function()
         local r = assert(client:send {
           method = "GET",
           path = "/local",
@@ -244,7 +244,7 @@ for _, strategy in helpers.each_strategy() do
       end)
     end)
 
-    it("checks if request with {X-Country = Brazil, X-Regione = Goiania} matches rule with {X-Country = Brazil, X-Regione = Goiania}", function()
+    it("chk if {X-Country = Brazil, X-Regione = Goiania} matches {X-Country = Brazil, X-Regione = Goiania}", function()
       local r = assert(client:send {
         method = "GET",
         path = "/local",
@@ -261,7 +261,7 @@ for _, strategy in helpers.each_strategy() do
       assert.equal("brazil_cluster", header_value)
     end)
 
-    it("checks if request with {X-Country = Italy, Connection = close} matches rule with {X-Country = Italy, Connection = close}", function()
+    it("chk if {X-Country = Italy, Connection = close} matches {X-Country = Italy, Connection = close}", function()
       local r = assert(client:send {
         method = "GET",
         path = "/local",

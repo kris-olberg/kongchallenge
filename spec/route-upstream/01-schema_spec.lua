@@ -15,7 +15,7 @@ describe("Plugin: route-upstream (schema)", function()
     }
     local ok, err = v(config, schema_def)
     assert.falsy(ok)
-    assert.equal("bad header name 'X-Region!', allowed characters are A-Z, a-z, 0-9, '_', and '-'", err.config.rules[1].headers)
+    assert.equal("bad header 'X-Region!', allowed chars are A-Z, a-z, 0-9, '_', and '-'", err.config.rules[1].headers)
   end)
 
   it("validates upstream", function()
