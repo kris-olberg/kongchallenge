@@ -1,4 +1,4 @@
-local kong = kong
+local kong = require "kong"
 
 
 local plugin = {
