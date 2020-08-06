@@ -1,16 +1,17 @@
+---[[
 -- If you're not sure your plugin is executing, uncomment the line below and restart Kong
 -- then it will throw an error which indicates the plugin is being loaded at least.
 
-assert(ngx.get_phase() == "timer", "The world is coming to an end!")
+-- assert(ngx.get_phase() == "timer", "The world is coming to an end!")
+--]]
 
+local kong = kong
+local ngx = ngx
 
 local plugin = {
   PRIORITY = 1000, -- set the plugin priority, which determines plugin execution order
   VERSION = "0.1",
 }
-
-
-local kong = kong
 
 ---[[ handles more initialization, but AFTER the worker process has been forked/created.
 -- It runs in the 'init_worker_by_lua_block'
@@ -25,11 +26,11 @@ end --]]
 ---[[ runs in the 'access_by_lua_block'
 -- the code for the function below was copied from work done by Paula Murillo at
 -- https://github.com/murillopaula/kong-upstream-by-header.git. I've
--- added comments that describe the algorithm.
+-- added comments that describe the algorithm. --]]
 function plugin:access(plugin_conf)
   plugin.super.access(self)
 
-  ---[[ get the headers and values; e.g, X-Country=Italy]]
+  ---[[ get the headers and values; e.g, X-Country=Italy ]]
   local req_headers = kong.request.get_headers()
 
   ---[[ set local variables for logic eval, counters and the upstream name ]]
@@ -74,7 +75,7 @@ function plugin:access(plugin_conf)
     kong.service.set_upstream(upstream)
     kong.response.set_header("X-Upstream-Name", upstream)
   end
-end --]]
+end
 
 
 ---[[ runs in the 'header_filter_by_lua_block'
