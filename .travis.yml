@@ -57,6 +57,8 @@ install:
   - cd openresty-build-tools && mkdir work && ./kong-ngx-build -p $KONG_PATH --openresty $OPENRESTY --openssl $OPENSSL --luarocks $LUAROCKS --force
   # - cd kong-ce
   # - make dev
+  - cd ../
+  - luarocks install luacheck
   - createuser --createdb kong
   - createdb -U kong kong_tests
   - docker run -d --name httpbin-9004 -p 9004:9000 shashiranjan84/httpbin
