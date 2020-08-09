@@ -27,12 +27,12 @@ services:
 env:
   global:
     - LUAROCKS=2.4.3
-    - OPENSSL=1.1.1g
+    - OPENSSL=1.1.1c
     - CASSANDRA_BASE=2.2.12
     - CASSANDRA_LATEST=3.9
     - KONG_TEST_DATABASE=cassandra
-    - OPENRESTY_BASE=1.15.8.3
-    - OPENRESTY_LATEST=1.15.8.3
+    - OPENRESTY_BASE=1.15.8.1
+    - OPENRESTY_LATEST=1.15.8.1
     - DOWNLOAD_CACHE=$HOME/download-cache
     - INSTALL_CACHE=$HOME/install-cache
     - PLUGIN_NAME=upstream-by-header
