@@ -27,17 +27,18 @@ services:
 env:
   global:
     - LUAROCKS=2.4.3
-    - OPENSSL=1.1.1a
+    - OPENSSL=1.1.1g
     - CASSANDRA_BASE=2.2.12
     - CASSANDRA_LATEST=3.9
     - KONG_TEST_DATABASE=cassandra
-    - OPENRESTY_BASE=1.15.8.1
-    - OPENRESTY_LATEST=1.15.8.1
+    - OPENRESTY_BASE=1.15.8.3
+    - OPENRESTY_LATEST=1.15.8.3
     - DOWNLOAD_CACHE=$HOME/download-cache
     - INSTALL_CACHE=$HOME/install-cache
     - PLUGIN_NAME=upstream-by-header
     - KONG_TEST_PLUGINS=bundled,$PLUGIN_NAME
     - KONG_PLUGINS=bundled,$PLUGIN_NAME
+    - KONG_PATH=$HOME/kong-ce
 
   matrix:
     - OPENRESTY=$OPENRESTY_BASE
@@ -47,12 +48,15 @@ env:
 
 before_install:
   - git clone https://github.com/Kong/kong.git kong-ce
+  - git clone https://github.com/kong/openresty-build-tools
+  - chmod -R 777 /openresty-build-tools
   - source setup_env.sh
 
 install:
   - luarocks make
-  - cd kong-ce
-  - make dev
+  - cd openresty-build-tools && mkdir work && ./kong-ngx-build -p $KONG_PATH --openresty $OPENRESTY --openssl $OPENSSL --luarocks $LUAROCKS --force
+  # - cd kong-ce
+  # - make dev
   - createuser --createdb kong
   - createdb -U kong kong_tests
   - docker run -d --name httpbin-9004 -p 9004:9000 shashiranjan84/httpbin
